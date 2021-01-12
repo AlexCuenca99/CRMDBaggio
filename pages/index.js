@@ -1,65 +1,70 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import Layout from '../components/Layout';
+import Cliente from '../components/Cliente';
+import { gql, useQuery } from '@apollo/client'
+import { useRouter } from 'next/router';
+import Link from 'next/link'
 
-export default function Home() {
+const OBTENER_CLIENTES = gql`
+  query obtenerClientes{
+    obtenerClientes{
+      id
+      nombre
+      apellido
+      cedula
+      direccion
+      creado
+    }  
+  }
+`;
+
+export default function Index() {
+  
+  const router = useRouter();
+
+  //Consulta de Apollo
+  const { data, loading, client } = useQuery(OBTENER_CLIENTES);
+
+  if(loading){
+    return <p>Cargando...</p>
+  }
+
+  if(!data.obtenerClientes){
+    client.clearStore();
+    router.push('/login');
+    return <p>Cargando...</p>
+  }
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+    <div>
+      <Layout>
+        <h1 className="text-2xl text-gray-800 font-light">Clientes</h1>
+        <Link href="/nuevoCliente">
+          <a className="mb-3 mt-3 inline-block py-2 px-4 border border-transparent text-sm leading-5 font-medium rounded-md text-white bg-orange-600 hover:bg-orange-500 focus:outline-none focus:border-orange-700 focus:shadow-outline-orange active:bg-orange-700 transition duration-150 ease-in-out">Nuevo Cliente</a>
+        </Link>
+        
+        <div className="overflow-x-scroll">
+          <table className="table-auto divide-y mt-10 w-full w-lg divide-gray-50">
+            <thead>
+              <tr>
+                <th className="px-6 py-3 border-b border-gray-200 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">Nombre</th>
+                <th className="px-6 py-3 border-b border-gray-200 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">Cédula</th>
+                <th className="px-6 py-3 border-b border-gray-200 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">Dirección</th>
+                <th className="px-6 py-3 border-b border-gray-200 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">Eliminar</th>
+                <th className="px-6 py-3 border-b border-gray-200 bg-gray-200 text-left text-xs leading-4 font-medium text-gray-600 uppercase tracking-wider">Editar</th>
+              </tr>
+            </thead>
 
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
+            <tbody className="bg-white">
+              {data.obtenerClientes.map( cliente => (
+                <Cliente
+                  key={cliente.id}
+                  cliente={cliente}
+                />
+              ))}
+            </tbody>
+          </table>
         </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
+      </Layout>
     </div>
-  )
+  );
 }
