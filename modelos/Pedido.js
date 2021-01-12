@@ -1,0 +1,27 @@
+const mongoose = require('mongoose');
+
+const ProductoSchema = mongoose.Schema({
+    pedido: {
+        type: Array,
+        required: true
+    },
+    total: {
+        type: Number,
+        required: true
+    },
+    cliente: {
+        type: mongoose.Schema.Types.ObjectId,
+        required: true,
+        ref: 'Cliente'
+    },
+    estado: {
+        type: String,
+        default: "PENDIENTE",
+    },
+    creado: {
+        type: Date,
+        default: Date.now()
+    }
+});
+
+module.exports = mongoose.model('Pedido', ProductoSchema)
